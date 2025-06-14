@@ -44,6 +44,7 @@ bool Compare(const char *p_A_filename, const char *p_B_filename)
     while (sumByteNumber > 0)
     {
         currByteNumber = fread(buffer, sizeof(char), BUFFER_SIZE, B_file);
+        // This is needed in case file B is smaller than file A
         if (currByteNumber == 0)
         {
             fclose(A_file);
