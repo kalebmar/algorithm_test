@@ -76,8 +76,6 @@ float CalculateBiggestRadius(const Point *points, uint32_t len)
     if (len == 0)
         return 0.0f;
 
-    float distance;
-
     Point *pointArray = malloc(len * sizeof(Point));
 
     if (pointArray == NULL)
