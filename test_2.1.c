@@ -1,9 +1,16 @@
 // Different algorithm for the second problem
+// This function finds the smallest radius that still includes 
+// at least two points with the same ID. It works by first 
+// sorting the points by ID (and by distance if IDs match), 
+// then scanning adjacent pairs to find the closest matching pair 
+// per unique ID. If no matching IDs are found, it returns the 
+// distance of the farthest point from the origin.
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <float.h>
 
 #define ID_LENGTH 10
 
@@ -11,9 +18,7 @@ typedef struct
 {
     uint32_t x, y;
     char id[ID_LENGTH];
-    uint32_t hashedID;
 } Point;
-
 
 float distanceFromOrigin(uint32_t x, uint32_t y)
 {
@@ -22,24 +27,51 @@ float distanceFromOrigin(uint32_t x, uint32_t y)
     return sqrt(fx * fx + fy * fy);
 }
 
-uint32_t simple_hash(const char *str) {
-    uint32_t sum = 0;
-    while (*str)
-        sum += *str++;
-    return sum;
+int compare_hashedID(const void *a, const void *b)
+{
+    Point ua = *(const Point *)a;
+    Point ub = *(const Point *)b;
+
+    // a < b -> return -1
+    // a > b -> return 1
+    // a == b -> distance
+    uint8_t id_cmp = strcmp(ua.id, ub.id);
+    if (id_cmp < 0) // ua->id < ub->id
+        return -1;
+    else if (id_cmp > 0) // ua->id > ub->id
+        return 1;
+    else
+    { // ua->id == ub->id
+        float distA = distanceFromOrigin(ua.x, ua.y);
+        float distB = distanceFromOrigin(ub.x, ub.y);
+        if (distA < disbB)
+            return -1;
+        else if (distA > distB)
+            return 1;
+        else // distA == distB
+            return 0;
+    }
 }
 
-int compare_hashedID(const void *a, const void *b) {
-    uint32_t ua = *(const uint32_t*)a;
-    uint32_t ub = *(const uint32_t*)b;
-
-    if (ua < ub) return -1;
-    if (ua > ub) return 1;
+int compareByDistance(const void *a, const void *b)
+{
+    const Point *pointA = (const Point *)a;
+    const Point *pointB = (const Point *)b;
+    float distA = distanceFromOrigin(pointA->x, pointA->y);
+    float distB = distanceFromOrigin(pointB->x, pointB->y);
+    if (distA < distB)
+        return -1;
+    if (distA > distB)
+        return 1;
     return 0;
 }
 
 float CalculateBiggestRadius(const Point *points, uint32_t len)
 {
+    uint8_t similarID;
+    float biggestRadius = FLT_MAX;
+    float newRadius = 0.0f;
+    char lastID[ID_LENGTH] = "";
 
     if (len == 0)
         return 0.0f;
@@ -52,37 +84,31 @@ float CalculateBiggestRadius(const Point *points, uint32_t len)
         return 0.0f;
     // Error handling must be implemented
 
-    memcpy(pointArray, points, len * sizeof(Points));
+    memcpy(pointArray, points, len * sizeof(Point));
 
-    for(uint32_t i = 0; i < len; i++)
-    pointArray[i].hashedID = simple_hash(pointArray[i].id);
-
-    // Sort the array to group elements with the same hashedID next to each other
+    // Sort the array to group elements with the same ID next to each other
     qsort(pointArray, len, sizeof(Point), compare_hashedID);
 
-    // Make a function for this part
-    float smallDist = 0.0f;
-    float bigDist = 0.0f;
-    float a;
-    float b;
-    bool notSimilar;
-    uint32_t smallDistNum;
-
-
-    // Current approach compares each ID only with the next one
-    // To be corrected: all entries with the same hashedID must be compared
-    // For each hashedID, store the smallest and second smallest radius
-    // Then update the corresponding distance accordingly
-    for(uint32_t i = 0; i < len - 1; i++){
-    similar = strcmp(pointArray[i].id, pointArray[i+1]);
-    if(notSimilar){ //ID-s match
-        a = distanceFromOrigin(pointArray[i].x, pointArray[i].y);
-        b = distanceFromOrigin(pointArray[i+1].x, pointArray[i+1].y);
-        
-    }
+    for (uint32_t i = 0; i < len - 2; i++)
+    {   
+        // ID-s match
+        similarID = strcmp(pointArray[i].id, pointArray[i + 1].id);
+        // Points are ordered by distance in case ID-s match
+        // We can ignore points that are further with the same ID
+        if (similarID == 0 && strcmp(lastID, pointArray[i].id) != 0)
+        {  
+            strcpy(lastID, pointArray[i].id);
+            newRadius = distanceFromOrigin(pointArray[i + 1].x, pointArray[i + 1].y);
+            if (newRadius < biggestRadius)
+                biggestRadius = newRadius;
+        }
     }
 
-   
+    // In case there are no similar ID-s
+    if(biggestRadius == FLT_MAX){
+        qsort(pointArray, len, sizeof(Point), compareByDistance);
+        biggestRadius = distanceFromOrigin(pointArray[len - 1].x, pointArray[len - 1].y);
+    }
     free(pointArray);
-    return distance;
+    return biggestRadius;
 }
