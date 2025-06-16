@@ -90,7 +90,7 @@ float CalculateBiggestRadius(const Point *points, uint32_t len, uint8_t sortSele
         return 0.0f;
     // Error handling must be implemented
 
-    memcpy(pointArray, points, len * sizeof(Points));
+    memcpy(pointArray, points, len * sizeof(Point));
     switch (sortSelector)
     {
     case qsort:
