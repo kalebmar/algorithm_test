@@ -1,3 +1,4 @@
+// Use test_2.1 instead of test_2 — faster algorithm
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
