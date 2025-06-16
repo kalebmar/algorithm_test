@@ -1,4 +1,4 @@
-# protecta_test
+# algorithm_test
 
 
 1. Two files (A and B) are given. Check if file B starts with the same bytes as the whole file A
